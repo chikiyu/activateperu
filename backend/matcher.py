@@ -86,4 +86,13 @@ def match(causa: str, provincia: str, top_n: int = 3) -> list[dict]:
     pool = local if len(local) >= 2 else [(i, float(s)) for i, s in enumerate(scores)]
 
     top = sorted(pool, key=lambda x: x[1], reverse=True)[:top_n]
-    return [ORGS[i] | {"score": s} for i, s in top]
+
+    # Normalizar scores para que el mejor match muestre 75-92% afinidad
+    if top:
+        raw_max = top[0][1]
+        if raw_max > 0:
+            top = [(i, 0.75 + 0.17 * (s / raw_max)) for i, s in top]
+        else:
+            top = [(i, 0.50) for i, s in top]
+
+    return [ORGS[i] | {"score": round(s, 3)} for i, s in top]
