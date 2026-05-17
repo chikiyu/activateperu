@@ -1,40 +1,89 @@
-from sentence_transformers import SentenceTransformer
-import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+import re
 import json
 import os
 
-MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
 DATA_PATH = os.path.join(os.path.dirname(__file__), "data/orgs_cusco.json")
-
-model = SentenceTransformer(MODEL_NAME)
 
 with open(DATA_PATH, encoding="utf-8") as f:
     ORGS = json.load(f)
 
-# Pre-computar embeddings de las orgs al arrancar
+# Expansión semántica: palabras clave del usuario → términos del dataset
+_SINONIMOS = {
+    "agua": "agua medioambiente recurso hídrico ambiental",
+    "medio ambiente": "medioambiente ambiental recurso natural ecología",
+    "medioambiente": "medioambiente ambiental recurso natural ecología",
+    "ambiente": "medioambiente ambiental recurso natural",
+    "ambiental": "medioambiente ambiental recurso natural",
+    "educacion": "educación formación enseñanza capacitación",
+    "educación": "educación formación enseñanza capacitación",
+    "liderazgo": "liderazgo gestión dirección político",
+    "salud": "salud bienestar médico",
+    "cultura": "cultura arte cultural identidad",
+    "derechos": "derechos democracia humanos justicia",
+    "jovenes": "jóvenes juvenil juventud",
+    "jóvenes": "jóvenes juvenil juventud",
+    "politica": "política política pública democracia incidencia",
+    "política": "política política pública democracia incidencia",
+    "voluntariado": "voluntariado solidario altruista acción social",
+    "economia": "económico desarrollo social emprendimiento",
+    "economía": "económico desarrollo social emprendimiento",
+    "deporte": "deporte deportivo recreación",
+    "religion": "religión fe espiritual",
+    "religión": "religión fe espiritual",
+    "tecnologia": "tecnología innovación digital",
+    "tecnología": "tecnología innovación digital",
+}
+
+
+def _normalizar(texto: str) -> str:
+    t = texto.lower().strip()
+    # juntar "medio ambiente" → "medioambiente"
+    t = re.sub(r"\bmedio\s+ambiente\b", "medioambiente", t)
+    return t
+
+
+def _expandir(texto: str) -> str:
+    t = _normalizar(texto)
+    extras = []
+    for keyword, expansion in _SINONIMOS.items():
+        if keyword in t:
+            extras.append(expansion)
+    return t + " " + " ".join(extras)
+
+
 org_texts = [
-    f"{o['tematica1']} {o.get('tematica2', '')} {o.get('descripcion', '')}"
+    _normalizar(" ".join(filter(None, [
+        o.get("nombre", ""),
+        o.get("tematica1", ""),
+        o.get("tematica2", ""),
+        o.get("descripcion", ""),
+        o.get("accion_concreta", ""),
+    ])))
     for o in ORGS
 ]
-org_embeddings = model.encode(org_texts, convert_to_numpy=True)
+
+_vectorizer = TfidfVectorizer(
+    analyzer="word",
+    sublinear_tf=True,
+    min_df=1,
+    ngram_range=(1, 2),
+)
+_org_matrix = _vectorizer.fit_transform(org_texts)
 
 
 def match(causa: str, provincia: str, top_n: int = 3) -> list[dict]:
-    query = f"{causa} {provincia}"
-    query_embedding = model.encode([query], convert_to_numpy=True)[0]
+    query = _expandir(f"{causa} {provincia}")
+    query_vec = _vectorizer.transform([query])
+    scores = cosine_similarity(query_vec, _org_matrix)[0]
 
-    scores = np.dot(org_embeddings, query_embedding) / (
-        np.linalg.norm(org_embeddings, axis=1) * np.linalg.norm(query_embedding) + 1e-9
-    )
-
-    # Filtrar por provincia si hay suficientes orgs locales
     provincia_lower = provincia.lower()
-    filtered = [
-        (i, s) for i, s in enumerate(scores)
+    local = [
+        (i, float(s)) for i, s in enumerate(scores)
         if ORGS[i].get("provincia", "").lower() == provincia_lower
     ]
-    if len(filtered) < 2:
-        filtered = list(enumerate(scores))
+    pool = local if len(local) >= 2 else [(i, float(s)) for i, s in enumerate(scores)]
 
-    top = sorted(filtered, key=lambda x: x[1], reverse=True)[:top_n]
-    return [ORGS[i] | {"score": float(s)} for i, s in top]
+    top = sorted(pool, key=lambda x: x[1], reverse=True)[:top_n]
+    return [ORGS[i] | {"score": s} for i, s in top]
