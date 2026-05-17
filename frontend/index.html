@@ -5,25 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Actívate Perú</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bcp: {
+              blue:  '#003DA5',
+              dark:  '#002d7a',
+              light: '#009FE3',
+              pale:  '#e8f0fb',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
-    :root {
-      --bcp-blue: #003DA5;
-      --bcp-light: #009FE3;
-    }
-    .btn-bcp { background-color: var(--bcp-blue); }
-    .btn-bcp:hover { background-color: #002d7a; }
     #map { height: 320px; }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen font-sans">
+<body class="bg-bcp-pale min-h-screen font-sans">
 
   <!-- Header -->
-  <header class="text-white py-6 px-4 text-center" style="background-color:#003DA5;">
+  <header class="bg-bcp-blue text-white py-6 px-4 text-center shadow-md">
     <h1 class="text-3xl font-bold tracking-tight">Actívate Perú</h1>
-    <p class="mt-1 text-blue-200 text-sm">Encuentra tu espacio de participación juvenil en 3 pasos</p>
-    <p class="text-xs mt-1 text-blue-300">Con el respaldo del Patronato BCP</p>
+    <p class="mt-1 text-bcp-light text-sm">Encuentra tu espacio de participación juvenil en 3 pasos</p>
+    <p class="text-xs mt-1 text-white/60">Con el respaldo del Patronato BCP</p>
   </header>
 
   <!-- Form -->
@@ -39,7 +49,7 @@
           id="causa"
           type="text"
           placeholder='Ej: "el agua", "la educación de mi barrio", "espacios para jóvenes"'
-          class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bcp-light focus:border-bcp-light transition"
         />
       </div>
 
@@ -48,7 +58,7 @@
         <label class="block text-sm font-semibold text-gray-700 mb-2">
           2. ¿En qué provincia estás?
         </label>
-        <select id="provincia" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select id="provincia" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bcp-light focus:border-bcp-light transition">
           <option value="">Selecciona tu provincia</option>
           <option value="Cusco">Cusco</option>
           <option value="Anta">Anta</option>
@@ -71,15 +81,16 @@
           3. ¿Cuánto tiempo puedes dedicar por semana?
         </label>
         <div class="flex gap-3 flex-wrap">
-          <button onclick="selectTiempo(this, 'menos de 2h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-blue-500 transition">Menos de 2h</button>
-          <button onclick="selectTiempo(this, '2 a 5h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-blue-500 transition">2 a 5h</button>
-          <button onclick="selectTiempo(this, 'más de 5h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-blue-500 transition">Más de 5h</button>
+          <button onclick="selectTiempo(this, 'menos de 2h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-bcp-light transition">Menos de 2h</button>
+          <button onclick="selectTiempo(this, '2 a 5h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-bcp-light transition">2 a 5h</button>
+          <button onclick="selectTiempo(this, 'más de 5h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-bcp-light transition">Más de 5h</button>
         </div>
       </div>
 
       <button
+        id="btn-buscar"
         onclick="buscar()"
-        class="btn-bcp w-full text-white font-semibold py-3 rounded-xl transition text-sm"
+        class="w-full bg-bcp-blue hover:bg-bcp-dark text-white font-semibold py-3 rounded-xl transition text-sm disabled:opacity-60"
       >
         Encontrar mi espacio →
       </button>
@@ -110,10 +121,10 @@
 
     function selectTiempo(btn, valor) {
       document.querySelectorAll(".tiempo-btn").forEach(b => {
-        b.classList.remove("bg-blue-600", "text-white", "border-blue-600");
+        b.classList.remove("bg-bcp-blue", "text-white", "border-bcp-blue");
         b.classList.add("border-gray-300");
       });
-      btn.classList.add("bg-blue-600", "text-white", "border-blue-600");
+      btn.classList.add("bg-bcp-blue", "text-white", "border-bcp-blue");
       btn.classList.remove("border-gray-300");
       tiempoSeleccionado = valor;
     }
@@ -127,14 +138,24 @@
         return;
       }
 
-      const res = await fetch(`${API}/match`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ causa, provincia, tiempo: tiempoSeleccionado })
-      });
+      const btn = document.getElementById("btn-buscar");
+      btn.disabled = true;
+      btn.textContent = "Buscando...";
 
-      const data = await res.json();
-      mostrarResultado(data.resultados);
+      try {
+        const res = await fetch(`${API}/match`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ causa, provincia, tiempo: tiempoSeleccionado })
+        });
+        const data = await res.json();
+        mostrarResultado(data.resultados);
+      } catch (e) {
+        alert("Error al conectar con el servidor. Intenta de nuevo.");
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Encontrar mi espacio →";
+      }
     }
 
     function mostrarResultado(orgs) {
@@ -143,26 +164,26 @@
 
       const top = orgs[0];
       container.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-md p-5 border-l-4" style="border-color:#003DA5;">
+        <div class="bg-white rounded-2xl shadow-md p-5 border-l-4 border-bcp-blue">
           <div class="flex items-start justify-between">
             <div>
-              <span class="text-xs font-semibold uppercase text-blue-600 tracking-wide">Tu match</span>
+              <span class="text-xs font-semibold uppercase text-bcp-blue tracking-wide">Tu match</span>
               <h2 class="text-lg font-bold text-gray-900 mt-1">${top.nombre}</h2>
               <p class="text-sm text-gray-500 mt-0.5">${top.provincia}, ${top.region}</p>
             </div>
-            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full shrink-0 ml-2">
               ${Math.round(top.score * 100)}% afinidad
             </span>
           </div>
           <div class="mt-3 flex gap-2 flex-wrap">
-            <span class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full">${top.tematica1}</span>
-            ${top.tematica2 ? `<span class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full">${top.tematica2}</span>` : ""}
+            <span class="bg-bcp-pale text-bcp-blue text-xs px-3 py-1 rounded-full">${top.tematica1}</span>
+            ${top.tematica2 ? `<span class="bg-bcp-pale text-bcp-blue text-xs px-3 py-1 rounded-full">${top.tematica2}</span>` : ""}
           </div>
           <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3">
             <p class="text-xs font-semibold text-amber-800 uppercase tracking-wide">Tu primera acción esta semana</p>
             <p class="text-sm text-amber-900 mt-1">${top.accion_concreta}</p>
           </div>
-          ${top.email ? `<a href="mailto:${top.email}" class="mt-3 inline-block text-sm text-blue-600 underline">✉ Escribirles ahora</a>` : ""}
+          ${top.email ? `<a href="mailto:${top.email}" class="mt-3 inline-block text-sm text-bcp-blue underline hover:text-bcp-dark">✉ Escribirles ahora</a>` : ""}
         </div>
         ${orgs.slice(1).map(o => `
           <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
@@ -171,16 +192,13 @@
                 <p class="text-sm font-semibold text-gray-800">${o.nombre}</p>
                 <p class="text-xs text-gray-400">${o.tematica1}</p>
               </div>
-              <span class="text-xs text-gray-400">${Math.round(o.score * 100)}%</span>
+              <span class="text-xs text-bcp-light font-semibold">${Math.round(o.score * 100)}%</span>
             </div>
           </div>
         `).join("")}
       `;
 
-      // Mapa
-      if (top.lat && top.lng) {
-        mostrarMapa(orgs);
-      }
+      if (top.lat && top.lng) mostrarMapa(orgs);
     }
 
     function mostrarMapa(orgs) {
