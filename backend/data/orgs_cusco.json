@@ -677,5 +677,22 @@
     "accion_concreta": "Postula como voluntario o voluntaria 2025-II llenando su formulario de postulación. Escríbeles por WhatsApp al +51 986 809 679 o a nanaykunacusco@gmail.com.",
     "fuente": "web_verificada",
     "web": "nanaykuna.org"
+  },
+  {
+    "id": 46,
+    "nombre": "MAQAY — ORGANIZACIÓN AMBIENTAL JUVENIL CUSCO",
+    "region": "Cusco",
+    "provincia": "Cusco",
+    "representante": "Gabriela Paliza",
+    "email": "gabriela@maqay.org",
+    "tipo": "Organización sin fines de lucro",
+    "tematica1": "Medioambiente y recursos naturales",
+    "tematica2": "Democracia y Derechos Humanos",
+    "descripcion": "Organización cusqueña que promueve el derecho a la información ambiental, participación ciudadana y acceso a la justicia ambiental. Tiene Escuela de Participación Ambiental activa.",
+    "lat": -13.517,
+    "lng": -71.9785,
+    "accion_concreta": "Postula a su Escuela de Participación Ambiental o al curso de Ciudadanía Ambiental para universitarios. Escríbeles a gabriela@maqay.org o al +51 929 283971.",
+    "fuente": "minam_verificada",
+    "web": "maqay.org"
   }
 ]
