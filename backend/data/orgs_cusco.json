@@ -643,5 +643,39 @@
     "lat": -13.6167,
     "lng": -71.5333,
     "accion_concreta": "Regístrate como voluntario y participa en su próxima actividad comunitaria."
+  },
+  {
+    "id": 44,
+    "nombre": "AREJO — ASAMBLEA REGIONAL DE JÓVENES DEL CUSCO",
+    "region": "Cusco",
+    "provincia": "Cusco",
+    "representante": "Mesa Directiva AREJO",
+    "email": "arejocusco18@gmail.com",
+    "tipo": "Plataforma regional de organizaciones juveniles",
+    "tematica1": "Democracia y Derechos Humanos",
+    "tematica2": "Cultura de paz",
+    "descripcion": "Plataforma oficial regional que articula a todas las organizaciones juveniles del Cusco. Espacio de participación, coordinación y formación política y ciudadana de jóvenes.",
+    "lat": -13.517,
+    "lng": -71.9785,
+    "accion_concreta": "Contáctalos por email o WhatsApp (+51 925 302 898) para unirte a su próxima asamblea o conocer las organizaciones que articulan en tu provincia.",
+    "fuente": "web_verificada",
+    "web": "cusco.arejo.org.pe"
+  },
+  {
+    "id": 45,
+    "nombre": "ÑAÑAYKUNA — ORGANIZACIÓN JUVENIL CUSQUEÑA",
+    "region": "Cusco",
+    "provincia": "Cusco",
+    "representante": "Equipo Ñañaykuna",
+    "email": "nanaykunacusco@gmail.com",
+    "tipo": "Organización de voluntariado",
+    "tematica1": "Acciones solidarias y altruistas",
+    "tematica2": "Salud",
+    "descripcion": "Organización juvenil cusqueña sin fines de lucro activa desde 2017. Trabaja con mujeres, jóvenes y adolescentes en vulnerabilidad en comunidades del Cusco y Perú.",
+    "lat": -13.52,
+    "lng": -71.982,
+    "accion_concreta": "Postula como voluntario o voluntaria 2025-II llenando su formulario de postulación. Escríbeles por WhatsApp al +51 986 809 679 o a nanaykunacusco@gmail.com.",
+    "fuente": "web_verificada",
+    "web": "nanaykuna.org"
   }
 ]
