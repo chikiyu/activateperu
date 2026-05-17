@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+.env
+.venv
+venv/
+*.egg-info/
+dist/
+build/
+.DS_Store
+Thumbs.db
+*.xlsx
+*.csv
+*.xls
+node_modules/
+.idea/
+.vscode/

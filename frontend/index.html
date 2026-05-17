@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Actívate Perú</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    :root {
+      --bcp-blue: #003DA5;
+      --bcp-light: #009FE3;
+    }
+    .btn-bcp { background-color: var(--bcp-blue); }
+    .btn-bcp:hover { background-color: #002d7a; }
+    #map { height: 320px; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+
+  <!-- Header -->
+  <header class="text-white py-6 px-4 text-center" style="background-color:#003DA5;">
+    <h1 class="text-3xl font-bold tracking-tight">Actívate Perú</h1>
+    <p class="mt-1 text-blue-200 text-sm">Encuentra tu espacio de participación juvenil en 3 pasos</p>
+    <p class="text-xs mt-1 text-blue-300">Con el respaldo del Patronato BCP</p>
+  </header>
+
+  <!-- Form -->
+  <main class="max-w-xl mx-auto px-4 py-8">
+    <div id="form-section" class="bg-white rounded-2xl shadow-md p-6 space-y-6">
+
+      <!-- Pregunta 1 -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          1. ¿Qué tema te importa más en tu comunidad?
+        </label>
+        <input
+          id="causa"
+          type="text"
+          placeholder='Ej: "el agua", "la educación de mi barrio", "espacios para jóvenes"'
+          class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <!-- Pregunta 2 -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          2. ¿En qué provincia estás?
+        </label>
+        <select id="provincia" class="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Selecciona tu provincia</option>
+          <option value="Cusco">Cusco</option>
+          <option value="Anta">Anta</option>
+          <option value="Calca">Calca</option>
+          <option value="Canas">Canas</option>
+          <option value="Canchis">Canchis</option>
+          <option value="Chumbivilcas">Chumbivilcas</option>
+          <option value="Espinar">Espinar</option>
+          <option value="La Convención">La Convención</option>
+          <option value="Paruro">Paruro</option>
+          <option value="Paucartambo">Paucartambo</option>
+          <option value="Quispicanchi">Quispicanchi</option>
+          <option value="Urubamba">Urubamba</option>
+        </select>
+      </div>
+
+      <!-- Pregunta 3 -->
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">
+          3. ¿Cuánto tiempo puedes dedicar por semana?
+        </label>
+        <div class="flex gap-3 flex-wrap">
+          <button onclick="selectTiempo(this, 'menos de 2h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-blue-500 transition">Menos de 2h</button>
+          <button onclick="selectTiempo(this, '2 a 5h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-blue-500 transition">2 a 5h</button>
+          <button onclick="selectTiempo(this, 'más de 5h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-blue-500 transition">Más de 5h</button>
+        </div>
+      </div>
+
+      <button
+        onclick="buscar()"
+        class="btn-bcp w-full text-white font-semibold py-3 rounded-xl transition text-sm"
+      >
+        Encontrar mi espacio →
+      </button>
+    </div>
+
+    <!-- Resultado -->
+    <div id="resultado" class="hidden mt-6 space-y-4"></div>
+
+    <!-- Mapa -->
+    <div id="map-section" class="hidden mt-6 bg-white rounded-2xl shadow-md overflow-hidden">
+      <div class="px-4 pt-4 pb-2">
+        <h3 class="font-semibold text-gray-800 text-sm">Organizaciones en tu región</h3>
+      </div>
+      <div id="map"></div>
+    </div>
+  </main>
+
+  <footer class="text-center text-xs text-gray-400 pb-8">
+    Con datos del RENAJU · Patronato BCP · Hackathon Becas BCP 2026
+  </footer>
+
+  <script>
+    const API = "http://localhost:8000"; // cambiar a URL de Render en producción
+    let tiempoSeleccionado = "";
+    let mapa = null;
+
+    function selectTiempo(btn, valor) {
+      document.querySelectorAll(".tiempo-btn").forEach(b => {
+        b.classList.remove("bg-blue-600", "text-white", "border-blue-600");
+        b.classList.add("border-gray-300");
+      });
+      btn.classList.add("bg-blue-600", "text-white", "border-blue-600");
+      btn.classList.remove("border-gray-300");
+      tiempoSeleccionado = valor;
+    }
+
+    async function buscar() {
+      const causa = document.getElementById("causa").value.trim();
+      const provincia = document.getElementById("provincia").value;
+
+      if (!causa || !provincia || !tiempoSeleccionado) {
+        alert("Por favor completa las 3 preguntas");
+        return;
+      }
+
+      const res = await fetch(`${API}/match`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ causa, provincia, tiempo: tiempoSeleccionado })
+      });
+
+      const data = await res.json();
+      mostrarResultado(data.resultados);
+    }
+
+    function mostrarResultado(orgs) {
+      const container = document.getElementById("resultado");
+      container.classList.remove("hidden");
+
+      const top = orgs[0];
+      container.innerHTML = `
+        <div class="bg-white rounded-2xl shadow-md p-5 border-l-4" style="border-color:#003DA5;">
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-xs font-semibold uppercase text-blue-600 tracking-wide">Tu match</span>
+              <h2 class="text-lg font-bold text-gray-900 mt-1">${top.nombre}</h2>
+              <p class="text-sm text-gray-500 mt-0.5">${top.provincia}, ${top.region}</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded-full">
+              ${Math.round(top.score * 100)}% afinidad
+            </span>
+          </div>
+          <div class="mt-3 flex gap-2 flex-wrap">
+            <span class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full">${top.tematica1}</span>
+            ${top.tematica2 ? `<span class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full">${top.tematica2}</span>` : ""}
+          </div>
+          <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3">
+            <p class="text-xs font-semibold text-amber-800 uppercase tracking-wide">Tu primera acción esta semana</p>
+            <p class="text-sm text-amber-900 mt-1">${top.accion_concreta}</p>
+          </div>
+          ${top.email ? `<a href="mailto:${top.email}" class="mt-3 inline-block text-sm text-blue-600 underline">✉ Escribirles ahora</a>` : ""}
+        </div>
+        ${orgs.slice(1).map(o => `
+          <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
+            <div class="flex justify-between items-center">
+              <div>
+                <p class="text-sm font-semibold text-gray-800">${o.nombre}</p>
+                <p class="text-xs text-gray-400">${o.tematica1}</p>
+              </div>
+              <span class="text-xs text-gray-400">${Math.round(o.score * 100)}%</span>
+            </div>
+          </div>
+        `).join("")}
+      `;
+
+      // Mapa
+      if (top.lat && top.lng) {
+        mostrarMapa(orgs);
+      }
+    }
+
+    function mostrarMapa(orgs) {
+      document.getElementById("map-section").classList.remove("hidden");
+
+      if (!mapa) {
+        mapa = L.map("map").setView([orgs[0].lat, orgs[0].lng], 11);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap"
+        }).addTo(mapa);
+      }
+
+      orgs.forEach((o, i) => {
+        if (!o.lat || !o.lng) return;
+        const color = i === 0 ? "#003DA5" : "#009FE3";
+        const marker = L.circleMarker([o.lat, o.lng], {
+          radius: i === 0 ? 12 : 8,
+          fillColor: color,
+          color: "#fff",
+          weight: 2,
+          fillOpacity: 0.9
+        }).addTo(mapa);
+        marker.bindPopup(`<b>${o.nombre}</b><br>${o.tematica1}`);
+        if (i === 0) marker.openPopup();
+      });
+    }
+  </script>
+</body>
+</html>
