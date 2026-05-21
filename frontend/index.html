@@ -15,6 +15,8 @@
               dark:  '#002d7a',
               light: '#009FE3',
               pale:  '#e8f0fb',
+              lila:  '#5C2D91',
+              lilap: '#f3eefa',
             }
           }
         }
@@ -32,8 +34,11 @@
   <!-- Header -->
   <header class="bg-bcp-blue text-white py-6 px-4 text-center shadow-md">
     <h1 class="text-3xl font-bold tracking-tight">Actívate Perú</h1>
-    <p class="mt-1 text-bcp-light text-sm">Encuentra tu espacio de participación juvenil en 3 pasos</p>
-    <p class="text-xs mt-1 text-white/60">Con el respaldo del Patronato BCP</p>
+    <p class="mt-1 text-bcp-light text-sm">Encuentra tu espacio de participación en 3 preguntas</p>
+    <div class="flex items-center justify-center gap-2 mt-2">
+      <p class="text-xs text-white/60">Con el respaldo del Patronato BCP</p>
+      <span id="server-status" class="hidden text-xs px-2 py-0.5 rounded-full bg-yellow-400/20 text-yellow-200">⏳ conectando...</span>
+    </div>
   </header>
 
   <!-- Form -->
@@ -90,10 +95,17 @@
       <button
         id="btn-buscar"
         onclick="buscar()"
-        class="w-full bg-bcp-blue hover:bg-bcp-dark text-white font-semibold py-3 rounded-xl transition text-sm disabled:opacity-60"
+        class="w-full bg-bcp-blue hover:bg-bcp-dark text-white font-semibold py-3 rounded-xl transition text-sm disabled:opacity-60 disabled:cursor-not-allowed"
       >
         Encontrar mi espacio →
       </button>
+
+      <!-- WhatsApp hint -->
+      <p class="text-center text-xs text-gray-400 pt-1">
+        También puedes escribirnos por
+        <a href="https://wa.me/14155238886?text=hola" target="_blank" rel="noopener"
+           class="text-bcp-lila font-semibold hover:underline">WhatsApp</a>
+      </p>
     </div>
 
     <!-- Resultado -->
@@ -119,6 +131,15 @@
     let tiempoSeleccionado = "";
     let mapa = null;
 
+    // Wake up Render on page load so it's warm when user submits
+    (function pingServer() {
+      const badge = document.getElementById("server-status");
+      badge.classList.remove("hidden");
+      fetch(`${API}/health`, { method: "GET" })
+        .then(() => { badge.textContent = "✓ listo"; badge.className = "text-xs px-2 py-0.5 rounded-full bg-green-400/20 text-green-200"; })
+        .catch(() => { badge.textContent = "sin conexión"; badge.className = "text-xs px-2 py-0.5 rounded-full bg-red-400/20 text-red-200"; });
+    })();
+
     function selectTiempo(btn, valor) {
       document.querySelectorAll(".tiempo-btn").forEach(b => {
         b.classList.remove("bg-bcp-blue", "text-white", "border-bcp-blue");
@@ -140,7 +161,7 @@
 
       const btn = document.getElementById("btn-buscar");
       btn.disabled = true;
-      btn.textContent = "Buscando...";
+      btn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span> Buscando tu espacio...';
 
       try {
         const res = await fetch(`${API}/match`, {
@@ -148,10 +169,16 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ causa, provincia, tiempo: tiempoSeleccionado })
         });
+        if (!res.ok) throw new Error("server error");
         const data = await res.json();
         mostrarResultado(data.resultados);
+        document.getElementById("resultado").scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (e) {
-        alert("Error al conectar con el servidor. Intenta de nuevo.");
+        document.getElementById("resultado").innerHTML =
+          `<div class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+            No pudimos conectar con el servidor. Espera unos segundos y vuelve a intentar.
+          </div>`;
+        document.getElementById("resultado").classList.remove("hidden");
       } finally {
         btn.disabled = false;
         btn.textContent = "Encontrar mi espacio →";
@@ -187,8 +214,10 @@
             ${top.email ? `<a href="mailto:${top.email}" class="text-sm text-bcp-blue hover:text-bcp-dark flex items-center gap-1">✉ <span>${top.email}</span></a>` : ""}
             ${top.web ? `<a href="https://${top.web}" target="_blank" rel="noopener" class="text-sm text-bcp-blue hover:text-bcp-dark flex items-center gap-1">🌐 <span>${top.web}</span></a>` : ""}
           </div>
-          <div class="mt-4 pt-4 border-t border-gray-100">
-            <a href="orgs.html" class="text-xs text-gray-400 hover:text-bcp-blue transition">¿Eres líder de una organización? Kit de fortalecimiento →</a>
+          <div class="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+            <a href="orgs.html" class="text-xs text-bcp-lila hover:underline font-medium">¿Eres líder de una org? Kit de fortalecimiento →</a>
+            <button onclick="document.getElementById('form-section').scrollIntoView({behavior:'smooth'})"
+              class="text-xs text-gray-400 hover:text-bcp-blue transition">Buscar otra →</button>
           </div>
         </div>
         ${orgs.slice(1).map(o => `

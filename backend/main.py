@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import Response
 from pydantic import BaseModel
 from matcher import match, ORGS
 
@@ -50,7 +50,7 @@ def get_match(req: ConsultaRequest):
     }
 
 
-@app.post("/whatsapp", response_class=PlainTextResponse)
+@app.post("/whatsapp")
 async def whatsapp_webhook(Body: str = Form(""), From: str = Form("")):
     numero = From.strip()
     texto = Body.strip()
@@ -142,6 +142,7 @@ async def whatsapp_webhook(Body: str = Form(""), From: str = Form("")):
     )
 
 
-def _twiml(mensaje: str) -> str:
+def _twiml(mensaje: str) -> Response:
     msg = mensaje.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-    return f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{msg}</Message></Response>'
+    xml = f'<?xml version="1.0" encoding="UTF-8"?><Response><Message>{msg}</Message></Response>'
+    return Response(content=xml, media_type="text/xml")
