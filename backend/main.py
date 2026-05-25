@@ -3,7 +3,7 @@ from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
-from matcher import match, ORGS
+from backend.matcher import match, ORGS
 
 app = FastAPI(title="Actívate Perú API")
 
@@ -99,15 +99,15 @@ async def whatsapp_webhook(Body: str = Form(""), From: str = Form("")):
         sesiones[numero] = sesion
         return _twiml(
             f"✅ Provincia: *{prov_norm}*\n\n"
-            "*Pregunta 3 de 3:* ¿Cuánto tiempo puedes dedicar por semana?\n\n"
-            "1️⃣ Menos de 2 horas\n"
-            "2️⃣ Entre 2 y 5 horas\n"
-            "3️⃣ Más de 5 horas\n\n"
+            "*Pregunta 3 de 3:* ¿Cuál es tu turno de disponibilidad?\n\n"
+            "1️⃣ Mañana\n"
+            "2️⃣ Tarde\n"
+            "3️⃣ Noche\n\n"
             "Responde con el número o escribe tu opción."
         )
 
     if paso == 3:
-        mapa_tiempo = {"1": "menos de 2h", "2": "2 a 5h", "3": "más de 5h"}
+        mapa_tiempo = {"1": "Mañana", "2": "Tarde", "3": "Noche"}
         tiempo = mapa_tiempo.get(texto, texto.lower())
         sesion["tiempo"] = tiempo
         sesion["paso"] = 0

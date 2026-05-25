@@ -12,6 +12,7 @@
           colors: {
             bcp: {
               blue:  '#003DA5',
+              orange: '#ea551c',
               dark:  '#002d7a',
               light: '#009FE3',
               pale:  '#e8f0fb',
@@ -83,20 +84,20 @@
       <!-- Pregunta 3 -->
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">
-          3. ¿Cuánto tiempo puedes dedicar por semana?
+          3. Turno de disponibilidad
         </label>
         <div class="flex gap-3 flex-wrap">
-          <button onclick="selectTiempo(this, 'menos de 2h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-bcp-light transition">Menos de 2h</button>
-          <button onclick="selectTiempo(this, '2 a 5h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-bcp-light transition">2 a 5h</button>
-          <button onclick="selectTiempo(this, 'más de 5h')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-bcp-light transition">Más de 5h</button>
+          <button onclick="selectTiempo(this, 'Mañana')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-[#ea551c] transition">Mañana</button>
+          <button onclick="selectTiempo(this, 'Tarde')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-[#ea551c] transition">Tarde</button>
+          <button onclick="selectTiempo(this, 'Noche')" class="tiempo-btn border border-gray-300 rounded-full px-4 py-1.5 text-sm hover:border-[#ea551c] transition">Noche</button>
         </div>
       </div>
 
       <button
         id="btn-buscar"
         onclick="buscar()"
-        class="w-full bg-bcp-blue hover:bg-bcp-dark text-white font-semibold py-3 rounded-xl transition text-sm disabled:opacity-60 disabled:cursor-not-allowed"
-      >
+        class="w-full bg-[#ea551c] hover:bg-[#cf491e] text-white font-semibold py-3 rounded-xl transition text-sm disabled:opacity-60 disabled:cursor-not-allowed"
+      > 
         Encontrar mi espacio →
       </button>
 
@@ -220,7 +221,7 @@
               class="text-xs text-gray-400 hover:text-bcp-blue transition">Buscar otra →</button>
           </div>
         </div>
-        ${orgs.slice(1).map(o => `
+        ${orgs.slice(1, 2).map(o => `
           <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-100">
             <div class="flex justify-between items-center">
               <div>

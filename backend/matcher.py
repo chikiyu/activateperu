@@ -34,6 +34,12 @@ _SINONIMOS = {
     "religión": "religión fe espiritual",
     "tecnologia": "tecnología innovación digital",
     "tecnología": "tecnología innovación digital",
+    "ojos": "ojos salud visual ocular vista oftalmología ojo seco catarata daltonismo ambliopía pterigión",
+    "ojo": "ojos salud visual ocular vista oftalmología ojo seco catarata daltonismo ambliopía pterigión",
+    "ocular": "ojos salud visual ojo seco catarata daltonismo ambliopía pterigión",
+    "salud visual": "salud visual ojos ocular vista oftalmología ojo seco catarata daltonismo ambliopía pterigión",
+    "agudeza visual": "salud visual ojos ocular vista oftalmología",
+    "vista": "ojos salud visual ocular vista oftalmología",
 }
 
 

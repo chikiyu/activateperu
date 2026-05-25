@@ -694,5 +694,23 @@
     "accion_concreta": "Postula a su Escuela de Participación Ambiental o al curso de Ciudadanía Ambiental para universitarios. Escríbeles a gabriela@maqay.org o al +51 929 283971.",
     "fuente": "minam_verificada",
     "web": "maqay.org"
+  },
+  {
+    "id": 47,
+    "nombre": "Campaña gratuita de salud visual - CUIDA TUS OJOS (UNSAAC)",
+    "region": "Cusco",
+    "provincia": "Cusco",
+    "representante": "María Pérez",
+    "email": "cuidatusojos@gmail.com",
+    "tipo": "Campaña / Servicio de salud",
+    "tematica1": "Salud",
+    "tematica2": "Salud visual",
+    "descripcion": "Campaña gratuita de salud visual: agudeza visual, medida de vista computarizada, descarte de catarata, pterigion, ambliopia, daltonismo y ojo seco. Lugar: Ex DIGA comedor universitario - UNSAAC.",
+    "direccion": "Ex DIGA comedor universitario - Universidad Nacional San Antonio Abad del Cusco (UNSAAC)",
+    "fecha_inicio": "2026-05-22",
+    "fecha_fin": "2026-06-29",
+    "lat": -13.5220,
+    "lng": -71.9584,
+    "accion_concreta": "Asiste a la campaña de salud visual del 22 de mayo al 29 de junio en el comedor EX DIGA de la UNSAAC. Escríbeles para reservar cita o conocer requisitos."
   }
 ]
