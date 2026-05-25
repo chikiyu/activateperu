@@ -3,7 +3,7 @@ from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from pydantic import BaseModel
-from backend.matcher import match, ORGS
+from matcher import match, ORGS
 
 app = FastAPI(title="Actívate Perú API")
 
